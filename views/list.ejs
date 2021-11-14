@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <%- include('header.ejs'); %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-primary">
+            <h1>Danh sách file</h1>
+        </div>
+        <div>
+            <% files.forEach(function(e){ %>
+                <a href="/file/read/<%= e %>/0"><%= e %></a><br>
+            <%  }) %>
+        </div>
+    </body>
+</html>

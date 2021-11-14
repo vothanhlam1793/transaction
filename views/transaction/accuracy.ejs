@@ -1,0 +1,205 @@
+<html>
+    <head>
+        <% if(!title) {var title = "Tạo transaction"} %>
+        <%- include("../header.ejs", {title: title}); %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-primary">
+            <%- include("menu.ejs") %>
+            <p><%= title %></p>
+        </div>
+        <% if(message != ""){ %>
+            <div class="alert alert-danger">
+                <p><%= message %></p>
+            </div>
+        <% } else { %>
+        <div>
+            <% function numberWithCommas(x) { if(x==undefined) return "";%>
+            <% return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); %>
+            <% } %>
+            <div class="m-2">
+                <div class="d-flex">
+                    <div class="mr-auto"><h4>Phiếu thu/chi</h4></div>
+                    <% if(data.accuracy != true){ %>
+                    <div class="ml-auto"><button class="btn btn-success" onclick="$('#create-note').toggle()">Tạo phiếu</button></div>
+                    <% } %>
+                </div>
+            </div>
+            <div class="border" id="create-note" style="display: none;">
+                <%- include("../note/create.ejs", {codeCheck: data.code, _url: "/view/transactions/accuracy/"+data.id, date: data.date}) %>
+            </div>
+            <div>
+                <table class="table table-bordered">
+                    <% notes.forEach(function(note){ %>
+                        <tr>
+                            <td><%= note.partnerName%></td>
+                            <td><%= note.content %></td>
+                            <td><%= numberWithCommas(note.amount) %></td>
+                            <% if(note.protected){ %>
+                            <% } else { %>
+                                <td><button class="btn btn-danger" onclick="deleteNote('<%= note.id %>')">x</button></td>
+                            <% } %>
+                        </tr>
+                    <% }); %>
+                </table>
+            </div>
+            <div class="mt-2">
+                <div class="d-flex">
+                    <div class="mr-auto"><h4>Thông tin giao dịch</h4></div>
+                    <div class="ml-auto"><button class="btn btn-danger" onclick="deleteTransaction('<%= data.id %>')">Xóa giao dịch</button></div>
+                </div>
+            </div>
+            <div class="p-2 m-2">
+                <div class="row alert alert-primary">
+                    <div class="col">
+                        <p>Giá trị: <strong><%= numberWithCommas(data.amount) %></strong></p>
+                        <p><%= data.content %></p>
+                    </div>
+                    <div class="col">
+                        <p>Mã phiếu: <%= data.code %></p>
+                        <p>Giao dịch ngày: <%= (new Date(data.date)).toISOString().split("T")[0] %></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col alert alert-info">
+                        <div class="row">
+                            <div class="col">
+                                <h6>Xác thực</h6>
+                            </div>
+                            <div class="col">
+                                <% if(data.accuracy == true){ %>
+                                    <!-- <div class="row"> -->
+                                        <div class="d-flex">
+                                            <div class="mr-auto"><span class="badge badge-success">Đã xác thực</span></div>
+                                            <div class="ml-auto"><button class="btn btn-danger" onclick="xacthuc(false)">Hủy xác thực</button></div>
+                                        </div>
+                                    <!-- </div> -->
+                                <% } else { %>
+                                    <!-- <div class="row"> -->
+                                        <span class="badge badge-danger">Chưa xác thực</span>
+                                    <!-- </div> -->
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h6>Bảo vệ</h6>
+                            </div>
+                            <div class="col">
+                                <% if(data.protected == true){ %>
+                                    <div class="d-flex">
+                                        <div class="mr-auto"><span class="badge badge-success">Bảo vệ</span></div>
+                                        <div class="ml-auto"><button class="btn btn-warning" onclick="protectedTransaction(false)">Hủy bảo vệ</button></div>
+                                    </div>
+                                <% } else { %>
+                                    <div class="d-flex">
+                                        <div class="mr-auto"><span class="badge badge-danger">Không bảo vệ</span></div>
+                                        <div class="ml-auto"><button class="btn btn-success" onclick="protectedTransaction(true)">Bảo vệ</button></div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% if(notes.length == 0) {var b = 0} else { %>
+                <% var b = notes.reduce(function(t, e){ return {amount: t.amount + e.amount} })} %>
+                <div class="row alert alert-warning">
+                    <div class="col">
+                        <p>Tổng: <%= numberWithCommas(b.amount) %></p>
+                    </div>
+                    <div class="col">
+                            <div>
+                                <% if(data.accuracy == false){ %>
+                                <% if(b.amount == data.amount){ %>
+                                    <p>Có thể xác thực <button class="btn btn-primary" onclick="xacthuc(true)">Xác thực</button></p>
+                                <% } else {%>
+                                    <p>Cần tạo thêm phiếu để xác thực</p>
+                                <% }} %>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <% } %>
+        <script>
+            var notes;
+            var transaction;
+            $.get("/api/notes?codeCheck=<%= data.code %>", function(data){
+                console.log(data);
+                notes = data;
+            })
+            $.get("/api/transactions/<%= data.id %>", function(data){
+                console.log(data);
+                transaction = data;
+            })
+            function deleteNote(id){
+                var note = notes.filter(function(e){
+                    return e.id == id;
+                })[0];
+                console.log(note);
+                var n = new Note(note);
+                n.destroy({
+                    success: function(){
+                        location.reload();
+                    }    
+                })
+            }
+            function xacthuc(d){
+                protectedNote(d);
+                accuracyTransaction(d);
+                setTimeout(function(){
+                    location.reload();
+                }, 2000)
+            }
+            function accuracyTransaction(d){
+                var t = new Transaction(transaction);
+                t.set("accuracy", d);
+                t.save();
+            }
+            function protectedTransaction(d){
+                var t = new Transaction(transaction);
+                t.set("protected", d);
+                t.save({}, {
+                    success: function(){
+                        location.reload();
+                    }
+                });
+            }
+            function protectedNote(d){
+                notes.forEach(function(e){
+                    var n = new Note(e);
+                    n.set("protected", d);
+                    n.save();
+                });
+            }
+            function deleteTransaction(id){
+                console.log("DELETE:", id);
+                // Xóa hết phiếu bên thu chi
+                console.log("Xóa bảo vệ phiếu");
+                protectedNote(false);
+                setTimeout(function(){
+                    console.log("Xóa phiếu");
+                    notes.forEach(function(e){
+                        var n = new Note(e);
+                        n.destroy();
+                    });
+                }, 2000)
+                console.log("Xóa bảo vệ giao dịch");
+                protectedTransaction(false);
+                setTimeout(function(){
+                    console.log("Xóa giao dịch");
+                    var t = new Transaction(transaction);
+                    t.destroy();
+                    console.log("Chuẩn bị tải lại trang")
+                    setTimeout(function(){
+                        // location.reload();
+                        window.location.href = document.referrer;
+                    }, 3000);
+                }, 2000)
+                // Xóa phiếu hiện tại
+
+            }
+        </script>
+    </body>
+</html>

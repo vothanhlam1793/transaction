@@ -1,0 +1,36 @@
+<div class="form-group">
+    <form method="POST" action="/api/notes">
+        <div class="row m-1">
+            <div class="col">
+                <input class="form-control" name="date" value="<%= (new Date(date)).toISOString().split('T')[0] %>" type="date">
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col">
+                <input class="form-control" name="amount" placeholder="Số tiền" type="number">
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col">
+                <textarea class="form-control" name="content" placeholder="Nội dung phiếu"></textarea>
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col">
+                <input class="form-control" name="partnerName" placeholder="Partner Name">
+            </div>
+            <div class="col">
+                <input class="form-control" name="partnerCode" placeholder="Partner Code">    
+            </div>
+        </div>
+        <div>
+            <input style="display: none;" class="form-control" name="codeCheck" value="<%= codeCheck %>" readonly>
+            <input style="display: none;" name="_url" value="<%= _url %>">
+        </div>
+        <div class="row m-1">
+            <div class="col text-center">
+                <input type="submit" class="btn btn-success" value="Tạo phiếu">
+            </div>
+        </div>
+    </form>
+</div>

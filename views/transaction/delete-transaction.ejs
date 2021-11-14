@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <%- include("../header.ejs"); %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-success">   
+            <%- include("menu.ejs") %>
+        </div>
+        <div>
+            <table class="table">
+                <% data.forEach(function(e){ %>
+                    <tr>
+                        <td><%= e.code %></td>
+                        <td><%= e.amount %></td>
+                        <td><%= e.date %></td>
+                        <td><button class="btn btn-danger" onclick="deleteTransaction('<%= e.id %>')">x</button></td>
+                    </tr>
+                <% }); %>
+            </table>
+        </div>
+        <script>
+            function deleteTransaction(id){
+                console.log(id);
+                var transaction = new Transaction({id: id});
+                transaction.destroy({
+                    success: function(){
+                        location.reload();
+                    }
+                })
+            }
+        </script>
+    </body>
+</html>

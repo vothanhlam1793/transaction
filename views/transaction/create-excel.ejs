@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <%- include("../header.ejs"); %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-success">   
+            <%- include("menu.ejs") %>
+        </div>
+        <div>
+            <button id="btn-list" onclick="$('#list-file').toggle()">Toggle list</button><button id="btn-list" onclick="$('#upload-file').toggle()">Toggle Upload</button>
+        </div>
+        <div id="list-file">
+            <table class="table table-bordered">
+                <% files.forEach(function(e,i){ %>
+                    <tr>
+                        <td style="width: 5%"><%= i+1 %></td>
+                        <td style="width: 50%"><p><%= e %></p></td>
+                        <td style="width: 20%;">
+                            <select id="select-<%= i %>" class="form-control">
+                                <option value="vcb">Vietcombank</option>
+                                <option value="acb">ACB</option>
+                                <option value="tcb">Techcombank</option>
+                                <option value="agr">Agribank</option>
+                                <option value="nab">Nam A Bank</option>
+                                <option value="creta">Creta</option>
+                            </select>
+                        </td>
+                        <td style="width: 10%"><button class="btn btn-success" onclick="findTransaction('<%= i %>', '<%= e %>')">Tìm giao dịch</button></td>
+                    </tr>
+                <% }) %>
+            </table>
+        </div>
+        <div id="upload-file">
+            <form action = "/view/transactions/file_upload" method = "POST" 
+                enctype = "multipart/form-data">
+                <input type="file" name="file" size="50" />
+                <br />
+                <input type = "submit" value = "Upload File" />
+            </form>
+        </div>
+        <script>
+            function findTransaction(i, file_name){
+                console.log(file_name, $("#select-" + i).val());
+                window.location.href = "/view/transactions/parse?name=" + file_name + "&bank=" + $("#select-" + i).val();
+            }
+        </script>
+    </body>
+</html>

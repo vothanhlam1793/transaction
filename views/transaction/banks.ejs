@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <%- include("../header.ejs") %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-warning">   
+            <%- include("menu.ejs") %>
+        </div>
+        <div>
+            <% banks.forEach(function(e){ %>
+            <a href="/view/transactions/bank/<%= e %>"><%= e %></a><br>
+            <% }) %>
+        </div>
+    </body>
+</html>

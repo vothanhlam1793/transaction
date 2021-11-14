@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <%- include('header.ejs'); %>
+    </head>
+    <body class="container">
+        <% obj.forEach(function(e, i){ %>
+            <% _url = url + "/" + i %>
+            <a href="<%= _url %>" ><%= i %></a> |
+        <% }) %>
+        <a href="/list">Trang chủ</a>
+        <h1><%= obj[page].name %></h1>
+        <p>MAX: <%= obj[page].data.length %> </p>
+        <div>
+            <table class="table">
+                <% obj[page].data.forEach(function(rows, j){ %>
+                    <tr>
+                        <td><%= j %></td>
+                        <% for(var i = 0; i < rows.length; i++){ %>
+                            
+                            <% if(rows[i] == undefined){ %>
+                                <td> </td>
+                                <% } else { %>
+                                    <td><%= rows[i] %></td>
+                                <% } %>
+                        <% } %>
+                    </tr>
+                <% }) %>
+            </table>
+        </div>
+    </body>
+</html>

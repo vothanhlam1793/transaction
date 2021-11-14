@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <%- include("../header.ejs") %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-warning">   
+            <%- include("menu.ejs") %>
+        </div>
+        <div>
+            <% function numberWithCommas(x) { %>
+            <% return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); %>
+            <% } %>
+            <div>
+                <p>Tổng: <span id="total"></span></p>
+            </div>
+            <div>
+                <button onclick="sortTable('table-list', 5)">Sort</button>
+                <table id="table-list" class="table table-striped table-bordered">
+                    <% data.forEach(function(e){ %>
+                            <tr onclick="window.location.href='/view/transactions/accuracy/<%= e.id %>'">
+                                <td style="width: 5%;"><%= e.bank %></td>
+                                <td style="width: 10%;"><%= e.code %></td>
+                                <td style="width: 40%;"><%= e.content %></td>
+                                <td style="width: 15%;" class="text-right"><%= numberWithCommas(e.amount) %></td>
+                                <% if(e.accuracy == true){ %>
+                                    <td style="width: 10%;"><span class="badge badge-success">Đã xác thực</span></td>
+                                <% } else { %>
+                                    <td style="width: 10%;"><span class="badge badge-danger">Chưa xác thực</span></td>
+                                <% } %>
+                                <td style="width: 10%;"><%= (new Date(e.date)).toISOString().split("T")[0] %></td>
+                            </tr>
+                    <% }); %>
+                </table>
+            </div>
+        </div>
+        <script>
+            var transactions;
+            var total = 0;
+            $.get("/api/transactions?bank=<%= data[0].bank %>", function(data){
+                transactions = data;
+                total = data.reduce(function(t, e){
+                    return {
+                        amount: t.amount + e.amount
+                    }
+                });
+                $("#total").text(numberWithCommas(total.amount));
+            })
+        </script>
+    </body>
+</html>

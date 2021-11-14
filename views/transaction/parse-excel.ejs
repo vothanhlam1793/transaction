@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <%- include("../header.ejs"); %>
+    </head>
+    <body class="container-fluid">
+        <div class="alert alert-secondary">   
+            <%- include("menu.ejs") %>
+        </div>
+        <div>
+            <table class="table">
+                <% data.forEach(function(e){ %>
+                    <tr>
+                        <td><%= e.code %></td>
+                        <td><%= e.amount %></td>
+                        <td><%= e.date %></td>
+                        <% var clscounter = ""; if(e.counter > 1){clscounter="alert alert-danger"} %>
+                        <td class="<%= clscounter %>" ><a href="/view/transactions/delete?code=<%= e.code %>"><%= e.counter %></a></td>
+                        <% if(e.existed == true){ %>
+                            <td>Đã tồn tại</td>
+                        <% } else { %>
+                            <td><button onclick="createTransaction('<%= e.bank %>', '<%= e.code %>', '<%= e.amount %>', '<%= e.content%>', '<%= e.date%>')">Tạo</button></td>
+                        <% } %>
+                    </tr>
+                <% }); %>
+            </table>
+        </div>
+        <script>
+            function createTransaction(bank, code, amount, content, date){
+                console.log(bank, code, amount, content, date);
+                var transaction = new Transaction({
+                    bank: bank,
+                    code: code, 
+                    content: content,
+                    date: date,
+                    amount: amount
+                });
+                console.log(transaction);
+                transaction.save({},{
+                    success: function(e,r){
+                        location.reload();
+                    }
+                })
+            }
+        </script>
+    </body>
+</html>
